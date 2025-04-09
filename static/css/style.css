@@ -1,0 +1,77 @@
+/* Estilos generales */
+body {
+    background-color: #f8f9fa;
+    padding-bottom: 30px;
+}
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #0d6efd !important;
+}
+
+/* Estilos para la salida del script */
+.output-container {
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background-color: #f8f9fa;
+}
+
+/* Estilos para los gráficos */
+.figures-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #dee2e6;
+}
+
+/* Mejoras para móviles */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .output-container {
+        max-height: 300px;
+        font-size: 0.9rem;
+    }
+    
+    .figures-content img {
+        margin-bottom: 15px;
+    }
+    
+    /* Botones más grandes en móvil para facilitar el toque */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Animación sutil para elementos interactivos */
+.list-group-item-action {
+    transition: all 0.2s ease;
+}
+
+.list-group-item-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilos para breadcrumb */
+.breadcrumb {
+    background-color: #e9ecef;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}

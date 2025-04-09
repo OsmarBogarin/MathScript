@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejecutar {{ script }} - MathScript</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="/resources/images/MathScript.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('list_modules', directory=directory) }}">{{ directory }}</a></li>
+                        <li class="breadcrumb-item active">{{ script }}</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="text-center mb-4">{{ script }}</h1>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Ejecución</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="scriptOutput" class="form-label">Salida del script:</label>
+                            <div id="scriptOutput" class="border rounded p-3 bg-light output-container">
+                                <pre id="outputContent" class="mb-0">Presione "Ejecutar" para comenzar...</pre>
+                            </div>
+                        </div>
+                        
+                        <div id="figuresContainer" class="mb-3 d-none">
+                            <label class="form-label">Gráficos generados:</label>
+                            <div class="figures-content"></div>
+                        </div>
+                        
+                        <div id="inputContainer" class="mb-3 d-none">
+                            <label for="userInput" class="form-label">Entrada requerida:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="userInput" placeholder="Ingrese su respuesta aquí">
+                                <button class="btn btn-outline-primary" type="button" id="submitInput">Enviar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="executeBtn" class="btn btn-primary px-4">
+                                Ejecutar
+                            </button>
+                            <button id="resetBtn" class="btn btn-outline-secondary px-4 ms-2">
+                                Reiniciar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Información adicional</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ description | safe }}
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        const directory = '{{ directory }}';
+        const script = '{{ script }}';
+        let userInputs = [];
+        let isRunning = false;
+        
+        // Elementos DOM
+        const executeBtn = document.getElementById('executeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const outputContent = document.getElementById('outputContent');
+        const inputContainer = document.getElementById('inputContainer');
+        const userInput = document.getElementById('userInput');
+        const submitInput = document.getElementById('submitInput');
+        const figuresContainer = document.getElementById('figuresContainer');
+        const figuresContent = figuresContainer.querySelector('.figures-content');
+        
+        // Evento para ejecutar el script
+        executeBtn.addEventListener('click', () => {
+            if (isRunning) return;
+            
+            isRunning = true;
+            executeBtn.disabled = true;
+            outputContent.textContent = 'Ejecutando script...';
+            figuresContainer.classList.add('d-none');
+            figuresContent.innerHTML = '';
+            
+            executeScript(userInputs);
+        });
+        
+        // Evento para reiniciar la ejecución
+        resetBtn.addEventListener('click', () => {
+            userInputs = [];
+            outputContent.textContent = 'Presione "Ejecutar" para comenzar...';
+            inputContainer.classList.add('d-none');
+            figuresContainer.classList.add('d-none');
+            figuresContent.innerHTML = '';
+            executeBtn.disabled = false;
+            isRunning = false;
+        });
+        
+        // Evento para enviar entrada del usuario
+        submitInput.addEventListener('click', () => {
+            const value = userInput.value.trim();
+            if (value) {
+                userInputs.push(value);
+                userInput.value = '';
+                inputContainer.classList.add('d-none');
+                executeScript(userInputs);
+            }
+        });
+        
+        // También permitir enviar con Enter
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitInput.click();
+            }
+        });
+        
+        // Función para ejecutar el script
+        function executeScript(inputs) {
+            fetch('/api/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    directory: directory,
+                    script: script,
+                    inputs: inputs
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mostrar salida
+                outputContent.textContent = data.output;
+                
+                // Mostrar figuras si hay
+                if (data.figures && data.figures.length > 0) {
+                    figuresContainer.classList.remove('d-none');
+                    data.figures.forEach(figureData => {
+                        const img = document.createElement('img');
+                        img.src = figureData;
+                        img.className = 'img-fluid mb-3 border rounded';
+                        figuresContent.appendChild(img);
+                    });
+                }
+                
+                // Manejar si necesita más entrada
+                if (data.needsMoreInput) {
+                    inputContainer.classList.remove('d-none');
+                    userInput.focus();
+                } else {
+                    executeBtn.disabled = false;
+                    isRunning = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                outputContent.textContent += '\n\nError de comunicación con el servidor.';
+                executeBtn.disabled = false;
+                isRunning = false;
+            });
+        }
+    </script>
+</body>
+</html>
