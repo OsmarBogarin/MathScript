@@ -18,12 +18,13 @@ Este proyecto tiene como objetivo simplificar la ejecución de cálculos complej
 - Matplotlib
 - NumPy
 - Pandas (para algunos scripts específicos)
+- Markdown
 
 ## Instalación
 
 1. Clone este repositorio:
    ```bash
-   git clone <url-del-repositorio>
+   git clone https://github.com/OsmarBogarin/MathScript.git
    cd mathscript-webapp
    ```
 
@@ -39,7 +40,7 @@ Este proyecto tiene como objetivo simplificar la ejecución de cálculos complej
 
 4. Coloque sus scripts Python en los directorios correspondientes:
    ```bash
-   cp ruta/a/simplex_v3.py modules/simplex/
+   cp ruta/a/simplex.py modules/simplex/
    ```
 
 ## Estructura de directorios
@@ -57,7 +58,7 @@ mathscript-webapp/
 │   └── execute.html        # Página para ejecutar un script
 └── modules/                # Directorio de módulos
     ├── simplex/            # Ejemplo de módulo
-    │   └── simplex_v3.py   # Script de simplex
+    │   └── simplex.py      # Script de simplex
     └── otro_modulo/        # Otro módulo de ejemplo
         └── script_ejemplo.py
 ```

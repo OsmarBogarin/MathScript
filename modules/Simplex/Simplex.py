@@ -282,9 +282,9 @@ def visualizar_problema_2d(restricciones, lados_derechos, func_obj, tipo, soluci
             y = (lados_derechos[i] - restriccion[0] * x) / restriccion[1]
             plt.plot(x, y, label=f"\nRestricción {i+1}: {restriccion[0]}x₁ + {restriccion[1]}x₂ ≤ {lados_derechos[i]}")
     
-    # Sombrear la región factible
+    # Sombrear la región factible suavemente
     # Primero creamos una malla de puntos
-    x_mesh, y_mesh = np.meshgrid(np.linspace(0, max_x, 100), np.linspace(0, max_y, 100))
+    x_mesh, y_mesh = np.meshgrid(np.linspace(0, max_x, 500), np.linspace(0, max_y, 500))
     points = np.vstack((x_mesh.flatten(), y_mesh.flatten())).T
     
     # Evaluamos cada restricción para cada punto
@@ -295,14 +295,10 @@ def visualizar_problema_2d(restricciones, lados_derechos, func_obj, tipo, soluci
     # Convertimos la máscara de nuevo a la forma de la malla
     mask = mask.reshape(x_mesh.shape)
     
-    # Sombreamos la región factible
-    plt.imshow(
-        mask.astype(float),
-        origin='lower',
-        extent=(0, max_x, 0, max_y),
-        aspect='auto',
-        alpha=0.3,
-        cmap='Blues'
+    # Sombreamos la región factible con un gradiente suave
+    plt.contourf(
+        x_mesh, y_mesh, mask.astype(float),
+        levels=50, cmap='Blues', alpha=0.3
     )
     
     # Dibujar la función objetivo para diferentes valores de Z
